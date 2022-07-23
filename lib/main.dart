@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 
 void main() {
   runApp(const MyApp());
@@ -106,10 +108,31 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: () async {
+          String? selectedDirectory =
+              await FilePicker.platform.getDirectoryPath();
+          print(selectedDirectory);
+          if (selectedDirectory != null) {
+            var systemTempDir = Directory(selectedDirectory);
+            final list = systemTempDir.listSync();
+            print(list.first);
+          }
+        },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  Stream<FileSystemEntity> listFiles() {
+    var systemTempDir = Directory('/Users/ryonishimura/pm43/lib');
+
+    return systemTempDir.list(recursive: true, followLinks: false);
+  }
+
+  Future<void> showFile(Stream<FileSystemEntity> entity) {
+    return entity.forEach((entity) {
+      print(entity.path);
+    });
   }
 }
