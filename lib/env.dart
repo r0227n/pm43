@@ -1,6 +1,5 @@
-import 'dart:io' show Directory;
+import 'dart:io' show Directory, File;
 import 'dart:convert' show jsonDecode;
-import 'package:flutter/services.dart' show rootBundle;
 
 /// Environment variables.
 class Env {
@@ -27,12 +26,11 @@ class Env {
 
   /// Load json file and convert it to a [Env] class
   static Future<Env> initialize() async {
-		// Load setting.json.
+		// setting.json path.
     const String jsonPath = 'lib/setting.json';
-		// TODO: file読み込み処理でjsonを開き、flutterに依存しない形で実装する
-    final jsonString = await rootBundle.loadString(jsonPath).catchError(
-        (e) => throw Exception('Failed to read configuration file: $e'));
-    final json = jsonDecode(jsonString);
-    return Env.fromJson(json);
+		// Load json file.
+		final jsonString = await File(jsonPath).readAsString().catchError((e) => throw Exception('Failed to read configuration file: $e'));
+		// Convert json to a [Env] class.
+    return Env.fromJson(jsonDecode(jsonString));
   }
 }
