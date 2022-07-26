@@ -1,14 +1,24 @@
 import 'dart:io' show Process;
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart' show launchUrl;
 import 'env.dart';
 
-void main() async {
-  runApp(const MyApp());
+void main() {
+  Env.initialize().then((env) {
+    runApp(
+      ProviderScope(
+        overrides: [
+          envProvider.overrideWithValue(env),
+        ],
+        child: const MyApp(),
+      ),
+    );
+  }).catchError(print);
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,65 +32,41 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+final workDirectoryFilePathProvider = StateProvider<List<String>>((ref) {
+  final env = ref.watch(envProvider);
+  final lsResult = Process.runSync('ls', [env.workDirecotryPath]);
+
+  return lsResult.stdout.toString().split('\n');
+});
+
+class MyHomePage extends HookConsumerWidget {
+  const MyHomePage({super.key, required this.title});
 
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final files = ref.watch(workDirectoryFilePathProvider.state).state;
 
-class _MyHomePageState extends State<MyHomePage> {
-  late Env env;
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(title),
       ),
-      body: FutureBuilder<List<String>>(
-        future: _init(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text(snapshot.error.toString()),
-            );
-          }
-
-          final List<String> _files = snapshot.data ?? const [];
-          return ListView.builder(
-            itemCount: _files.length - 1,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(_files[index]),
-                onTap: () {
-                  // TODO: URL作成処理をきれいにする
-                  launchUrl(Uri.parse('file:///${env.workDirecotryPath}/${_files[index]}'))
-                      .then(print)
-                      .catchError(print);
-                },
-              );
+      body: ListView.builder(
+        itemCount: files.length - 1,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(files[index]),
+            onTap: () {
+              // TODO: URL作成処理をきれいにする
+              launchUrl(Uri.parse(
+                      'file:///${ref.read(envProvider).workDirecotryPath}/${files[index]}'))
+                  .then(print)
+                  .catchError(print);
             },
           );
         },
       ),
     );
-  }
-
-  /// Read the configuration file
-  /// initialize the path to the directory to search.
-  /// return a list of files in the directory.
-  Future<List<String>> _init() async {
-		// Load the configuration file
-    env = await Env.initialize().catchError(print);
-    final lsResult = Process.runSync('ls', [env.workDirecotryPath]);
-
-    return lsResult.stdout.toString().split('\n');
   }
 }

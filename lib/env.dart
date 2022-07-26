@@ -1,5 +1,8 @@
 import 'dart:io' show Directory, File;
 import 'dart:convert' show jsonDecode;
+import 'package:hooks_riverpod/hooks_riverpod.dart' show Provider;
+
+final envProvider = Provider<Env>((_) => throw UnimplementedError());
 
 /// Environment variables.
 class Env {
