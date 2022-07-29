@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart' show launchUrl;
+import 'package:path/path.dart' as p;
 import 'env.dart';
 
 void main() {
@@ -90,32 +91,35 @@ final fileDirectoryProvider =
   // Retrieves files in the specified directory
   List<File> files = directory
       .listSync(recursive: true, followLinks: false)
-      .where((e) => e.path.contains(FileDirectoryNotifier.ignoreFile) == false)
+      .where((e) => FileDirectoryNotifier.monitoreExtensions.contains(p.context.extension(e.path)))
       .map((e) => File(e.path))
       .toList()
     ..sortLastModifired();
 
-  return FileDirectoryNotifier(files);
+  return FileDirectoryNotifier(directory, files);
 });
 
 /// Retrieves and manages files in a specified directory.
 /// Handles events when there is a change in the specified directory.
 class FileDirectoryNotifier extends StateNotifier<List<File>> {
-  FileDirectoryNotifier([List<File>? files]) : super(files ?? const []) {
+  FileDirectoryNotifier(this.direcotry, [List<File>? files]) : super(files ?? const []) {
     _watchDirectory();
   }
 
-  /// Specify file to ignore with [FileDirectoryNotifier] & [fileDirectoryProvider]
-  static const String ignoreFile = '.DS_Store';
+  /// The directory to watch.
+  final Directory direcotry;
+
+  /// Files to be monitore with [FileDirectoryNotifier] & [fileDirectoryProvider]
+  static const List<String> monitoreExtensions = ['.webm', '.mp3', '.mp4'];
 
   /// Watching a Directory for Changes
   /// An event is fired when a file is created, renamed, or deleted in the specified directory.
   /// Add to state: Creating or Renaming file
   /// Delete to state: Deleting or Renaming file
   void _watchDirectory() {
-    state.first.parent.watch(recursive: false).listen((entity) {
-      // Skip processing if the file to be ignored has changed
-      if (entity.path.contains(ignoreFile)) {
+    direcotry.watch(recursive: false).listen((entity) {
+      // // Skip files other than those to be monitore.
+      if (monitoreExtensions.contains(entity.path)) {
         return;
       }
 
@@ -132,7 +136,9 @@ class FileDirectoryNotifier extends StateNotifier<List<File>> {
           state = state.where((file) => file.path != entity.path).toList();
           break;
         default:
-          throw Exception('Unknown event type: ${entity.runtimeType}');
+          print(entity);
+          break;
+        // throw Exception('Unknown event type: ${entity.runtimeType}');
       }
     });
   }
