@@ -91,7 +91,8 @@ final fileDirectoryProvider =
   // Retrieves files in the specified directory
   List<File> files = directory
       .listSync(recursive: true, followLinks: false)
-      .where((e) => FileDirectoryNotifier.monitoreExtensions.contains(p.context.extension(e.path)))
+      .where((e) => FileDirectoryNotifier.monitoreExtensions
+          .contains(p.context.extension(e.path)))
       .map((e) => File(e.path))
       .toList()
     ..sortLastModifired();
@@ -111,6 +112,9 @@ class FileDirectoryNotifier extends StateNotifier<List<File>> {
 
   /// Files to be monitore with [FileDirectoryNotifier] & [fileDirectoryProvider]
   static const List<String> monitoreExtensions = ['.webm', '.mp3', '.mp4'];
+
+  /// Get the directory name.
+  String get currentName => direcotry.name;
 
   /// Watching a Directory for Changes
   /// An event is fired when a file is created, renamed, or deleted in the specified directory.
@@ -150,4 +154,10 @@ extension FileDirectoryExtension on List<File> {
   void sortLastModifired() {
     sort((a, b) => b.lastModifiedSync().compareTo(a.lastModifiedSync()));
   }
+}
+
+/// [Directory] extension
+extension DirectoryExtension on Directory {
+  /// Get the directory name.
+  String get name => p.split(path).last;
 }
