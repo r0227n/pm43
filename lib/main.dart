@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:url_launcher/url_launcher.dart' show launchUrl;
 import 'package:path/path.dart' as p;
 import 'env.dart';
@@ -43,25 +44,62 @@ class MyHomePage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final files = ref.watch(fileDirectoryProvider);
+    final _selectedIndex = useState<int>(0);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
       ),
-      body: ListView.builder(
-        itemCount: files.length,
-        itemBuilder: (context, index) {
-          return ProviderScope(
-            overrides: [
-              _currentFile.overrideWithValue(files[index]),
+      body: Row(
+        children: <Widget>[
+          NavigationRail(
+            selectedIndex: _selectedIndex.value,
+            onDestinationSelected: (int index) {
+              _selectedIndex.value = index;
+            },
+            labelType: NavigationRailLabelType.selected,
+            destinations: const <NavigationRailDestination>[
+              NavigationRailDestination(
+                icon: Icon(Icons.folder_outlined),
+                selectedIcon: Icon(Icons.folder),
+                label: Text('Folder'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.download_outlined),
+                selectedIcon: Icon(Icons.download),
+                label: Text('Download'),
+              ),
             ],
-            child: const CurrentFile(),
-          );
-        },
+          ),
+          const VerticalDivider(thickness: 1, width: 1),
+          // This is the main content.
+          Expanded(
+            flex: 2,
+            child: ListView.builder(
+              itemCount: files.length,
+              itemBuilder: (context, index) {
+                return ProviderScope(
+                  overrides: [
+                    _currentFile.overrideWithValue(files[index]),
+                  ],
+                  child: const CurrentFile(),
+                );
+              },
+            ),
+          ),
+          Expanded(
+            flex: 8,
+            child: Container(
+              color: Colors.red,
+            ),
+          ),
+        ],
       ),
     );
   }
 }
+
+
 
 class CurrentFile extends HookConsumerWidget {
   const CurrentFile({super.key});
@@ -96,12 +134,13 @@ final fileDirectoryProvider =
 class FileDirectoryNotifier extends StateNotifier<List<File>> {
   FileDirectoryNotifier(this.directory) : super(const []) {
     // Retrieves files in the specified directory
-    state =  directory
-      .listSync(recursive: true, followLinks: false)
-      .where((e) => FileDirectoryNotifier.monitoreExtensions.contains(p.context.extension(e.path)))
-      .map((e) => File(e.path))
-      .toList()
-    ..sortLastModifired();
+    state = directory
+        .listSync(recursive: true, followLinks: false)
+        .where((e) => FileDirectoryNotifier.monitoreExtensions
+            .contains(p.context.extension(e.path)))
+        .map((e) => File(e.path))
+        .toList()
+      ..sortLastModifired();
 
     _watchDirectory();
   }
