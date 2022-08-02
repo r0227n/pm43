@@ -74,9 +74,17 @@ class MyHomePage extends HookConsumerWidget {
           ),
           Expanded(
             flex: 8,
-            child: Container(
-              color: Colors.red,
-            ),
+            child: IndexedStack(
+              index: _selectedIndex.value,
+              children: [
+                Container(
+                  color: Colors.red,
+                ),
+                Container(
+                  color: Colors.blue,
+                ),
+              ],
+            )
           ),
         ],
       ),
