@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart' show ProviderScope;
 import 'env.dart';
-import 'features/work_space.dart';
+import 'work_space/work_space.dart';
 
 void main() {
   Env.initialize().then((env) {
