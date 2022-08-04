@@ -3,7 +3,12 @@ import 'extension/navigation_rail_extension.dart';
 import '../util/navigation_icon.dart';
 
 class ActivityBar extends StatelessWidget {
-  const ActivityBar(this.segue, this.icons, {super.key});
+  const ActivityBar(
+    this.segue, {
+      super.key,
+      this.icons = NavigationIcon.values,
+    }
+  );
 
   final ValueNotifier<NavigationIcon> segue;
   final List<NavigationIcon> icons;

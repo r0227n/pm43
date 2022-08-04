@@ -26,14 +26,14 @@ class WorkSpace extends HookConsumerWidget {
       ),
       body: Row(
         children: <Widget>[
-          ActivityBar(_selectedIndex, icons),
+          ActivityBar(_selectedIndex,),
           const Expanded(
             flex: 2,
             child: FileList(),
           ),
           Expanded(
             flex: 8,
-            child: Panel(_selectedIndex),
+            child: Panel(_selectedIndex,),
           ),
         ],
       ),
