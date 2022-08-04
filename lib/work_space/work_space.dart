@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart' show useState;
 import 'util/navigation_icon.dart';
 import 'activity_bar/activity_bar.dart';
 import 'side_bar/file_list.dart';
+import 'panel/panel.dart';
 
 class WorkSpace extends HookConsumerWidget {
   const WorkSpace({super.key, required this.title});
@@ -31,18 +32,9 @@ class WorkSpace extends HookConsumerWidget {
             child: FileList(),
           ),
           Expanded(
-              flex: 8,
-              child: IndexedStack(
-                index: _selectedIndex.value.index,
-                children: [
-                  Container(
-                    color: Colors.red,
-                  ),
-                  Container(
-                    color: Colors.blue,
-                  ),
-                ],
-              )),
+            flex: 8,
+            child: Panel(_selectedIndex),
+          ),
         ],
       ),
     );
