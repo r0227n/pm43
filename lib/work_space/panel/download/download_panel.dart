@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart' show HookWidget, useValueNotifier;
 import 'components/wrap_filter_chip.dart';
+import 'components/output_selecter.dart';
+import 'widgets/section_title.dart';
 import '../../util/supported_extension.dart';
 
 /// WorkSpace Download Panel
@@ -20,6 +22,7 @@ class DownloadPanel extends HookWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            const SectionTitle('YouTube video URL'),
             TextFormField(
               autofocus: true,
               decoration: const InputDecoration(
@@ -27,17 +30,17 @@ class DownloadPanel extends HookWidget {
               ),
             ),
             const Spacer(),
-            const Text('Encode Type'),
-            const Divider(),
+            const SectionTitle('Encode Type', bottomMargin: 10.0,),
             WrapFilterChip(
               chipState,
               SupportedExtension.values.map((e) => e.name).toList(),
             ),
             const Spacer(),
+            const OutputSelecter(),
             Center(
               child: ElevatedButton(
                 onPressed: () => print(chipState),
-                child: const Text('hoge'),
+                child: const Text('Download'),
               ),
             ),
             const Spacer(),
