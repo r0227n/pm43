@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart' show HookWidget, useValueNotifier;
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'components/wrap_filter_chip.dart';
 import 'components/output_selecter.dart';
 import 'widgets/section_title.dart';
+import 'widgets/input_text_field.dart';
 import '../../util/supported_extension.dart';
 
 /// WorkSpace Download Panel
@@ -11,10 +12,13 @@ class DownloadPanel extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    /// [_FilterChipWidget] State
+    /// [WrapFilterChip] State
     final chipState = useValueNotifier(List<bool>.filled(
         SupportedExtension.values.length, false,
         growable: false));
+    final urlTxtController = useTextEditingController();
+    final directorPathController = useTextEditingController();
+    final saveDirectory = useValueNotifier(SaveDirectory.woerkDirectory);
 
     return Material(
       child: Padding(
@@ -23,24 +27,32 @@ class DownloadPanel extends HookWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             const SectionTitle('YouTube video URL'),
-            TextFormField(
-              autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'URL',
-              ),
+            InputTextField(
+              urlTxtController,
+              'URL',
+              focus: true,
             ),
             const Spacer(),
-            const SectionTitle('Encode Type', bottomMargin: 10.0,),
+            const SectionTitle(
+              'Encode Type',
+              bottomMargin: 10.0,
+            ),
             WrapFilterChip(
               chipState,
               SupportedExtension.values.map((e) => e.name).toList(),
             ),
             const Spacer(),
-            const OutputSelecter(),
+            OutputSelecter(directorPathController, saveDirectory),
             Center(
               child: ElevatedButton(
-                onPressed: () => print(chipState),
                 child: const Text('Download'),
+                onPressed: () {
+                  // TODO: youtube-dl を実行する
+                  print(urlTxtController.text);
+                  print(directorPathController.text);
+                  print(chipState);
+                  print(saveDirectory.value);
+                },
               ),
             ),
             const Spacer(),
