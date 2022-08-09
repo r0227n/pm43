@@ -1,12 +1,13 @@
 import 'dart:io' show File, Directory, FileSystemCreateEvent, FileSystemDeleteEvent;
 import 'package:hooks_riverpod/hooks_riverpod.dart' show StateNotifier, StateNotifierProvider;
-import 'package:path/path.dart' as p show context;
+import 'package:path/path.dart' as p show extension;
 import 'extension/file_directory_extension.dart';
 import '../../env.dart';
-
+import '../util/supported_extension.dart';
 
 /// Provide a [FileDirectoryNotifier]
-final fileDirectoryProvider = StateNotifierProvider.autoDispose<FileDirectoryNotifier, List<File>>((ref) {
+final fileDirectoryProvider =
+    StateNotifierProvider.autoDispose<FileDirectoryNotifier, List<File>>((ref) {
   final directory = ref.watch(envProvider).workDirecotry;
 
   return FileDirectoryNotifier(directory);
@@ -19,8 +20,7 @@ class FileDirectoryNotifier extends StateNotifier<List<File>> {
     // Retrieves files in the specified directory
     state = directory
         .listSync(recursive: true, followLinks: false)
-        .where((e) => FileDirectoryNotifier.monitoreExtensions
-            .contains(p.context.extension(e.path)))
+        .where((e) => monitoreExtensions.contains(p.extension(e.path)))
         .map((e) => File(e.path))
         .toList()
       ..sortLastModifired();
@@ -32,8 +32,7 @@ class FileDirectoryNotifier extends StateNotifier<List<File>> {
   final Directory directory;
 
   /// Files to be monitore with [FileDirectoryNotifier] & [fileDirectoryProvider]
-  static const List<String> monitoreExtensions = ['.webm', '.mp3', '.mp4'];
-
+  final List<String> monitoreExtensions = SupportedExtension.values.map((e) => e.extension).toList();
   /// Get the directory name.
   String get currentName => directory.name;
 
