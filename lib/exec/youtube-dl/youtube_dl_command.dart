@@ -1,8 +1,7 @@
 import 'dart:async' show Completer;
 import 'dart:io' show Process, ProcessResult;
 import '../exec.dart';
-
-enum VideoFormat { mp3, mp4 }
+import '../../work_space/util/video_format.dart';
 
 class YoutubeDlCommand implements Exec {
   YoutubeDlCommand() {
