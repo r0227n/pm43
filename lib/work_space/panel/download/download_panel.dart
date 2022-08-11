@@ -4,7 +4,7 @@ import 'components/wrap_filter_chip.dart';
 import 'components/output_selecter.dart';
 import 'widgets/section_title.dart';
 import 'widgets/input_text_field.dart';
-import '../../util/supported_extension.dart';
+import '../../util/video_format.dart';
 
 /// WorkSpace Download Panel
 class DownloadPanel extends HookWidget {
@@ -14,7 +14,7 @@ class DownloadPanel extends HookWidget {
   Widget build(BuildContext context) {
     /// [WrapFilterChip] State
     final chipState = useValueNotifier(List<bool>.filled(
-        SupportedExtension.values.length, false,
+        VideoFormat.values.length, false,
         growable: false));
     final urlTxtController = useTextEditingController();
     final directorPathController = useTextEditingController();
@@ -39,7 +39,7 @@ class DownloadPanel extends HookWidget {
             ),
             WrapFilterChip(
               chipState,
-              SupportedExtension.values.map((e) => e.name).toList(),
+              VideoFormat.values.map((e) => e.name).toList(),
             ),
             const Spacer(),
             OutputSelecter(directorPathController, saveDirectory),

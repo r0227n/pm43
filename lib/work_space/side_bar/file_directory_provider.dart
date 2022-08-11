@@ -3,7 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart' show StateNotifier, StateNot
 import 'package:path/path.dart' as p show extension;
 import 'extension/file_directory_extension.dart';
 import '../../env.dart';
-import '../util/supported_extension.dart';
+import '../util/video_format.dart';
 
 /// Provide a [FileDirectoryNotifier]
 final fileDirectoryProvider =
@@ -32,7 +32,7 @@ class FileDirectoryNotifier extends StateNotifier<List<File>> {
   final Directory directory;
 
   /// Files to be monitore with [FileDirectoryNotifier] & [fileDirectoryProvider]
-  final List<String> monitoreExtensions = SupportedExtension.values.map((e) => e.extension).toList();
+  final List<String> monitoreExtensions = VideoFormat.values.map((e) => e.extension).toList();
   /// Get the directory name.
   String get currentName => directory.name;
 
