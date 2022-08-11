@@ -1,5 +1,4 @@
 enum VideoFormat {
-  webm,
   mp3,
   mp4,
 }
