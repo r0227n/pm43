@@ -1,13 +1,11 @@
-import 'dart:io' show File, Directory, FileSystemCreateEvent, FileSystemDeleteEvent;
+import 'dart:io' show File, Directory, FileSystemDeleteEvent;
 import 'package:hooks_riverpod/hooks_riverpod.dart' show StateNotifier, StateNotifierProvider;
-import 'package:path/path.dart' as p show extension;
 import 'extension/file_directory_extension.dart';
 import '../../env.dart';
 import '../util/video_format.dart';
 
 /// Provide a [FileDirectoryNotifier]
-final fileDirectoryProvider =
-    StateNotifierProvider.autoDispose<FileDirectoryNotifier, List<File>>((ref) {
+final fileDirectoryProvider = StateNotifierProvider.autoDispose<FileDirectoryNotifier, List<File>>((ref) {
   final directory = ref.watch(envProvider).workDirecotry;
 
   return FileDirectoryNotifier(directory);
@@ -19,8 +17,8 @@ class FileDirectoryNotifier extends StateNotifier<List<File>> {
   FileDirectoryNotifier(this.directory) : super(const []) {
     // Retrieves files in the specified directory
     state = directory
-        .listSync(recursive: true, followLinks: false)
-        .where((e) => monitoreExtensions.contains(p.extension(e.path)))
+      .listSync(recursive: true, followLinks: false)
+        .where((e) => monitoreExtensions.contains(e.path.split('.').last))
         .map((e) => File(e.path))
         .toList()
       ..sortLastModifired();
@@ -32,7 +30,9 @@ class FileDirectoryNotifier extends StateNotifier<List<File>> {
   final Directory directory;
 
   /// Files to be monitore with [FileDirectoryNotifier] & [fileDirectoryProvider]
-  final List<String> monitoreExtensions = VideoFormat.values.map((e) => e.extension).toList();
+  final List<String> monitoreExtensions =
+      VideoFormat.values.map((e) => e.name).toList();
+
   /// Get the directory name.
   String get currentName => directory.name;
 
@@ -41,28 +41,18 @@ class FileDirectoryNotifier extends StateNotifier<List<File>> {
   /// Add to state: Creating or Renaming file
   /// Delete to state: Deleting or Renaming file
   void _watchDirectory() {
-    directory.watch(recursive: false).listen((entity) {
-      // // Skip files other than those to be monitore.
-      if (monitoreExtensions.contains(entity.path)) {
-        return;
-      }
-
-      switch (entity.runtimeType) {
-        case FileSystemCreateEvent:
-          // Adding from the list when creating or renaming file
-          state = [
-            ...state,
-            File(entity.path),
-          ]..sortLastModifired();
-          break;
-        case FileSystemDeleteEvent:
-          // Deleteing from the list when deleting or renaming file
-          state = state.where((file) => file.path != entity.path).toList();
-          break;
-        default:
-          print(entity);
-          break;
-        // throw Exception('Unknown event type: ${entity.runtimeType}');
+    directory.watch(recursive: false).forEach((entity) {
+      // Skip files other than those to be monitore.
+      if (monitoreExtensions.contains(entity.path.split('.').last)) {
+        switch (entity.runtimeType) {
+          case FileSystemDeleteEvent:
+            // Deleteing from the list when deleting or renaming file
+            state = state.where((file) => file.path != entity.path).toList();
+            break;
+          default:
+            print(entity);
+            break;
+        }
       }
     });
   }

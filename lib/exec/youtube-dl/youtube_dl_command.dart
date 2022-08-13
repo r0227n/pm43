@@ -34,7 +34,6 @@ class YoutubeDlCommand implements Exec {
       return 0.0;
     }
 
-    print(stdout);
     // Get a percentage from the standard output content
     final percentage = stdout
         .split(' ')
