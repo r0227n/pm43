@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'components/wrap_filter_chip.dart';
+import 'package:pm43/env.dart';
 import 'components/output_selecter.dart';
+import 'widgets/wrap_filter_chip.dart';
 import 'widgets/section_title.dart';
 import 'widgets/input_text_field.dart';
-import '../../util/supported_extension.dart';
+import '../../util/video_format.dart';
+import '../../../exec/youtube-dl/youtube_dl_command.dart';
 
 /// WorkSpace Download Panel
 class DownloadPanel extends HookWidget {
@@ -12,10 +14,7 @@ class DownloadPanel extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    /// [WrapFilterChip] State
-    final chipState = useValueNotifier(List<bool>.filled(
-        SupportedExtension.values.length, false,
-        growable: false));
+    final selectChip = useValueNotifier<int>(0);
     final urlTxtController = useTextEditingController();
     final directorPathController = useTextEditingController();
     final saveDirectory = useValueNotifier(SaveDirectory.woerkDirectory);
@@ -38,20 +37,36 @@ class DownloadPanel extends HookWidget {
               bottomMargin: 10.0,
             ),
             WrapFilterChip(
-              chipState,
-              SupportedExtension.values.map((e) => e.name).toList(),
+              selectChip,
+              VideoFormat.values.map((e) => e.name).toList(),
             ),
             const Spacer(),
             OutputSelecter(directorPathController, saveDirectory),
             Center(
               child: ElevatedButton(
                 child: const Text('Download'),
-                onPressed: () {
-                  // TODO: youtube-dl を実行する
-                  print(urlTxtController.text);
-                  print(directorPathController.text);
-                  print(chipState);
-                  print(saveDirectory.value);
+                onPressed: () async {
+                  late final String videoId;
+                  late final String saveDirectoryPath;
+ 
+                  if (saveDirectory.value == SaveDirectory.woerkDirectory) {
+                    final env = await Env.initialize();
+                    saveDirectoryPath = env.workDirecotryPath;
+                  } else {
+                    saveDirectoryPath = directorPathController.text;
+                  }
+
+                  try {
+                    videoId = urlTxtController.text.split('v=')[1];
+                  } catch (e) {
+                    return;
+                  }
+
+                  final yt = YoutubeDlCommand();
+                  yt.download(VideoFormat.values[selectChip.value], saveDirectoryPath, videoId)
+                    .whenComplete(() => print('fin'));
+                  
+                  yt.progress.listen((event) { print(event); });
                 },
               ),
             ),
