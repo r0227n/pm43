@@ -34,7 +34,7 @@ class YoutubeDlCommand implements Exec {
     }
   }
 
-  Future<ProcessResult> download(VideoFormat format, String videoId) {
+  Future<ProcessResult> download(VideoFormat format, String outputPath, String videoId) {
     switch (format) {
       case VideoFormat.mp3:
         /// Download youtube videos as mp3
@@ -44,11 +44,19 @@ class YoutubeDlCommand implements Exec {
           format.name,
           '--embed-thumbnail',
           '--add-metadata',
+          '--output',
+          '"$outputPath"',
           videoId
         ]);
       case VideoFormat.mp4:
         /// Download youtube videos as mp4
-        return run(['-f', format.name, videoId]);
+        return run([
+          '-f',
+          format.name, 
+          '--output',
+          '"$outputPath"',
+          videoId
+        ]);
     }
   }
 }
