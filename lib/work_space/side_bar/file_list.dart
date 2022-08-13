@@ -2,6 +2,7 @@ import 'dart:io' show File;
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart' show launchUrl;
+import 'package:path/path.dart' as p show basename ;
 import 'file_directory_provider.dart';
 
 final _currentFile = Provider<File>((ref) => throw UnimplementedError());
@@ -40,7 +41,7 @@ class CurrentFile extends HookConsumerWidget {
     final file = ref.watch(_currentFile);
 
     return ListTile(
-      title: Text(file.path),
+      title: Text(p.basename(file.path)),
       onTap: () {
         print(file.path);
         // TODO: URL作成処理をきれいにする
