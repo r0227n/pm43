@@ -9,7 +9,8 @@ class YoutubeDlCommand implements Exec {
   YoutubeDlCommand() {
     Process.run(command, [help]).then((result) {
       if (result.exitCode != 0) {
-        throw Exception('youtube-dl error status ${result.exitCode}: ${result.stderr}');
+        throw Exception(
+            'youtube-dl error status ${result.exitCode}: ${result.stderr}');
       }
     }).catchError((e) => throw Exception(e));
   }
@@ -19,12 +20,12 @@ class YoutubeDlCommand implements Exec {
 
   @override
   final String help = '--help';
-  
+
   /// Get youtube-dl progress
   Stream<double> get progress => _progressController.stream;
 
   /// Controller of [progress]
-  /// control or youtube-dl command progress 
+  /// control or youtube-dl command progress
   final _progressController = StreamController<double>();
 
   /// Parse youtube-dl command standard output
@@ -33,11 +34,15 @@ class YoutubeDlCommand implements Exec {
       return 0.0;
     }
 
+    print(stdout);
     // Get a percentage from the standard output content
-    final percentage = stdout.split(' ').firstWhere((separate) => separate.contains('%'));
+    final percentage = stdout
+        .split(' ')
+        .firstWhere((separate) => separate.contains('%'), orElse: (() => ''));
 
     // Delete the symbol and make double value
-    final double? num = double.tryParse(percentage.substring(0, percentage.length - 1));
+    final double? num =
+        double.tryParse(percentage.substring(0, percentage.length - 1));
 
     if (num == null) {
       throw Exception('youtube-dl standard output parse error: $percentage');
@@ -45,7 +50,6 @@ class YoutubeDlCommand implements Exec {
 
     return num;
   }
-
 
   /// Execute youtube-dl command
   /// arguments: command options
@@ -64,7 +68,9 @@ class YoutubeDlCommand implements Exec {
 
     /// Error handling
     /// If an error occurs even once during command execution, the process is terminated.
-    process.stderr.first.then((error) => throw Exception(error));
+    process.stderr
+      .transform(utf8.decoder)
+      .listen((error) => throw Exception(error));
 
     return completer.future;
   }
