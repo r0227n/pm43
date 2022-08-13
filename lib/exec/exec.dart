@@ -1,5 +1,4 @@
 import 'dart:async' show Future;
-import 'dart:io' show ProcessResult;
 
 abstract class Exec {
   /// Exec command
@@ -8,9 +7,6 @@ abstract class Exec {
   /// Help command option
   abstract final String help;
 
-  /// Run command async
-  Future<ProcessResult> run(List<String> arguments);
-
-  /// Process validation
-  void validateProcess(ProcessResult result);
+  /// Execute command
+  Future<int> exec(List<String> arguments);
 }
