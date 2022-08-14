@@ -1,8 +1,8 @@
 import 'dart:io' show File, Directory, FileSystemDeleteEvent;
 import 'package:hooks_riverpod/hooks_riverpod.dart' show StateNotifier, StateNotifierProvider;
 import 'extension/file_directory_extension.dart';
-import '../../env.dart';
-import '../util/video_format.dart';
+import '../../../env.dart';
+import '../../util/video_format.dart';
 
 /// Provide a [FileDirectoryNotifier]
 final fileDirectoryProvider = StateNotifierProvider.autoDispose<FileDirectoryNotifier, List<File>>((ref) {
