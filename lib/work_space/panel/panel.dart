@@ -19,8 +19,9 @@ class Panel extends StatelessWidget {
       child: IndexedStack(
         index: segue.value.index,
         children: <Widget>[
-          for (final icon in icons)
-           icon.toPanel,
+          for (final icon in icons)...[
+            icon.toPanel,
+          ],
         ],
       ),
     );

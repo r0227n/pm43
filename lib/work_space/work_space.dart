@@ -10,11 +10,6 @@ class WorkSpace extends HookConsumerWidget {
 
   final String title;
 
-  static const icons = [
-    NavigationIcon.folder,
-    NavigationIcon.download,
-  ];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final _selectedIndex = useState<NavigationIcon>(NavigationIcon.folder);
