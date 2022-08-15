@@ -37,6 +37,10 @@ dependencies:
   url_launcher: ^6.1.5
   hooks_riverpod: ^1.0.4
   flutter_hooks: ^0.18.5+1
+  isar: ^2.5.0
+  isar_flutter_libs: ^2.5.0
+  isar_generator: ^2.5.0
+  build_runner: ^2.2.0
 
 dev_dependencies:
   flutter_test:
