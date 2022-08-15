@@ -34,3 +34,6 @@ doc/api/
 
 # App setings
 lib/setting.json
+
+# Avoid committing build_runner files
+*.g.dart
