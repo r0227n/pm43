@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart' show HookConsumer;
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:pm43/env.dart';
 import 'components/output_selecter.dart';
 import 'widgets/wrap_filter_chip.dart';
 import 'widgets/section_title.dart';
 import 'widgets/input_text_field.dart';
 import '../../util/video_format.dart';
 import '../../../exec/youtube-dl/youtube_dl_command.dart';
+import '../../../data/local/local_data_provider.dart';
 
 /// WorkSpace Download Panel
 class DownloadPanel extends HookWidget {
@@ -43,32 +44,38 @@ class DownloadPanel extends HookWidget {
             const Spacer(),
             OutputSelecter(directorPathController, saveDirectory),
             Center(
-              child: ElevatedButton(
-                child: const Text('Download'),
-                onPressed: () async {
-                  late final String videoId;
-                  late final String saveDirectoryPath;
- 
-                  if (saveDirectory.value == SaveDirectory.woerkDirectory) {
-                    final env = await Env.initialize();
-                    saveDirectoryPath = env.workDirecotryPath;
-                  } else {
-                    saveDirectoryPath = directorPathController.text;
-                  }
+              child: HookConsumer(builder: (context, ref, _) {
+                return ElevatedButton(
+                  child: const Text('Download'),
+                  onPressed: () async {
+                    late final String videoId;
+                    late final String saveDirectoryPath;
 
-                  try {
-                    videoId = urlTxtController.text.split('v=')[1];
-                  } catch (e) {
-                    return;
-                  }
+                    if (saveDirectory.value == SaveDirectory.woerkDirectory) {
+                      final path = ref.read(localStorageProvider.notifier).workerDirecotryPath;
+                      saveDirectoryPath = path ?? '';
+                    } else {
+                      saveDirectoryPath = directorPathController.text;
+                    }
 
-                  final yt = YoutubeDlCommand();
-                  yt.download(VideoFormat.values[selectChip.value], saveDirectoryPath, videoId)
-                    .whenComplete(() => print('fin'));
-                  
-                  yt.progress.listen((event) { print(event); });
-                },
-              ),
+                    try {
+                      videoId = urlTxtController.text.split('v=')[1];
+                    } catch (e) {
+                      return;
+                    }
+
+                    final yt = YoutubeDlCommand();
+                    yt
+                        .download(VideoFormat.values[selectChip.value],
+                            saveDirectoryPath, videoId)
+                        .whenComplete(() => print('fin'));
+
+                    yt.progress.listen((event) {
+                      print(event);
+                    });
+                  },
+                );
+              }),
             ),
             const Spacer(),
           ],

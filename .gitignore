@@ -32,8 +32,5 @@ doc/api/
 
 .DS_Store
 
-# App setings
-lib/setting.json
-
-# Avoid committing build_runner files
+# Avoid committing generated build_runner files
 *.g.dart
