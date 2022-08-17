@@ -1,12 +1,12 @@
 import 'dart:io' show File, Directory, FileSystemDeleteEvent;
 import 'package:hooks_riverpod/hooks_riverpod.dart' show StateNotifier, StateNotifierProvider;
 import 'extension/file_directory_extension.dart';
-import '../../../env.dart';
 import '../../util/video_format.dart';
+import '../../../data/local/local_data_provider.dart';
 
 /// Provide a [FileDirectoryNotifier]
 final fileDirectoryProvider = StateNotifierProvider.autoDispose<FileDirectoryNotifier, List<File>>((ref) {
-  final directory = ref.watch(envProvider).workDirecotry;
+  final directory = Directory(ref.watch(localStorageProvider.notifier).workerDirecotryPath ?? '');
 
   return FileDirectoryNotifier(directory);
 });
@@ -17,7 +17,7 @@ class FileDirectoryNotifier extends StateNotifier<List<File>> {
   FileDirectoryNotifier(this.directory) : super(const []) {
     // Retrieves files in the specified directory
     state = directory
-      .listSync(recursive: true, followLinks: false)
+        .listSync(recursive: true, followLinks: false)
         .where((e) => monitoreExtensions.contains(e.path.split('.').last))
         .map((e) => File(e.path))
         .toList()

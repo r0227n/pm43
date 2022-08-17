@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart' show HookConsumer;
 import '../widgets/input_text_field.dart';
 import '../widgets/section_title.dart';
-import '../../../../env.dart';
+import '../../../../data/local/local_data_provider.dart';
+
 
 enum SaveDirectory {
   woerkDirectory,
@@ -30,9 +31,9 @@ class OutputSelecter extends StatelessWidget {
                   title: const Text('Work Directory'),
                   subtitle: HookConsumer(
                     builder: ((context, ref, child) {
-                      final env = ref.watch(envProvider);
+                      final String workerDirecotryPath = ref.watch(localStorageProvider.notifier).workerDirecotryPath ?? 'Worker Directory is not set';
                       
-                      return Text(env.workDirecotryPath);
+                      return Text(workerDirecotryPath);
                     }),
                   ),
                   value: SaveDirectory.woerkDirectory,
