@@ -24,5 +24,13 @@ class LocalStorageNotifier extends StateNotifier<Isar> {
 
   String? get workerDirecotryPath => appSetting.getSync(_id)?.workDirectoryPath;
 
+  void updateWorkDirectoryPath(String path) {
+    final update = AppSetting()
+                    ..id = _id
+                    ..workDirectoryPath = path; 
+                    
+    state.writeTxnSync((isar) => appSetting.putSync(update));
+  }
+
   get throwError => throw UnimplementedError();
 }
