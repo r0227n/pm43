@@ -24,7 +24,7 @@ class WorkSpace extends HookConsumerWidget {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              showDialog<String>(
+              showDialog<void>(
                 context: context,
                 builder: (BuildContext context) => AlertDialog(
                   insetPadding: EdgeInsets.zero,
@@ -41,16 +41,23 @@ class WorkSpace extends HookConsumerWidget {
                       )),
                   actions: <Widget>[
                     TextButton(
-                      onPressed: () => Navigator.pop(context, 'Cancel'),
+                      onPressed: () => Navigator.pop(context),
                       child: const Text('Cancel'),
                     ),
                     TextButton(
-                      onPressed: () => Navigator.pop(context, 'OK'),
+                      onPressed: () => Navigator.pop(context),
                       child: const Text('OK'),
                     ),
                   ],
                 ),
-              );
+              )
+              .then((_) {
+                if (_txtController.text.isNotEmpty) {
+                  ref.read(localStorageProvider.notifier).updateWorkDirectoryPath(_txtController.text);
+                }
+              })
+              .catchError((e) => print(e)) // TODO: snackbar でいい感じにエラーを表示する
+              .whenComplete(() => _txtController.clear());
             },
           )
         ],
