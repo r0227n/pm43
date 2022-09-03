@@ -9,6 +9,12 @@ import '../../util/video_format.dart';
 import '../../../exec/youtube-dl/youtube_dl_command.dart';
 import '../../../data/local/local_data_provider.dart';
 
+enum DlState {
+  start,
+  error,
+  complete,
+}
+
 /// WorkSpace Download Panel
 class DownloadPanel extends HookWidget {
   const DownloadPanel({super.key});
@@ -52,7 +58,9 @@ class DownloadPanel extends HookWidget {
                     late final String saveDirectoryPath;
 
                     if (saveDirectory.value == SaveDirectory.woerkDirectory) {
-                      final path = ref.read(localStorageProvider.notifier).workerDirecotryPath;
+                      final path = ref
+                          .read(localStorageProvider.notifier)
+                          .workerDirecotryPath;
                       saveDirectoryPath = path ?? '';
                     } else {
                       saveDirectoryPath = directorPathController.text;
@@ -68,7 +76,12 @@ class DownloadPanel extends HookWidget {
                     yt
                         .download(VideoFormat.values[selectChip.value],
                             saveDirectoryPath, videoId)
-                        .whenComplete(() => print('fin'));
+                        .catchError((_) {
+                      _showSnackBar(context, DlState.error);
+                    }).whenComplete(
+                            () => _showSnackBar(context, DlState.complete));
+
+                    _showSnackBar(context, DlState.start);
 
                     yt.progress.listen((event) {
                       print(event);
@@ -79,6 +92,42 @@ class DownloadPanel extends HookWidget {
             ),
             const Spacer(),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showSnackBar(BuildContext context, DlState state) {
+    late final Text textWidtet;
+
+    switch (state) {
+      case DlState.start:
+        textWidtet = const Text('Download start');
+        break;
+      case DlState.error:
+        textWidtet = const Text('Download error');
+        break;
+      case DlState.complete:
+        textWidtet = const Text('Download complete');
+        break;
+      default:
+        throw Exception('Unknown state $state');
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        action: SnackBarAction(
+          label: 'Close',
+          onPressed: () {},
+        ),
+        content: textWidtet,
+        duration: const Duration(milliseconds: 1500),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8.0,
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
         ),
       ),
     );

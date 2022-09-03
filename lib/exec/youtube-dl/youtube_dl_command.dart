@@ -60,16 +60,17 @@ class YoutubeDlCommand implements Exec {
 
     /// Get the output of the command
     process.stdout
-      .transform(utf8.decoder)
-      .forEach((String output) => _progressController.add(_parseStdout(output)))
-      .whenComplete(() async => completer.complete(await process.exitCode))
-      .catchError((e) => throw Exception(e));
+        .transform(utf8.decoder)
+        .forEach(
+            (String output) => _progressController.add(_parseStdout(output)))
+        .whenComplete(() async => completer.complete(await process.exitCode))
+        .catchError((e) => throw Exception(e));
 
     /// Error handling
     /// If an error occurs even once during command execution, the process is terminated.
     process.stderr
-      .transform(utf8.decoder)
-      .listen((error) => throw Exception(error));
+        .transform(utf8.decoder)
+        .listen((error) => throw Exception(error));
 
     return completer.future;
   }
